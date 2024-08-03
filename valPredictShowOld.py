@@ -96,3 +96,7 @@ if st.button("Predict"):
         total = np.sum(pred)
         result_dict = {col: int(pred[i]) for i, col in enumerate(output_cols)}
         st.write(f"**{generic_model_name}**: {result_dict}, **Total**: **{total}**")
+
+# Option to add new prediction
+if st.button("Add Another Prediction"):
+    st.experimental_rerun()
