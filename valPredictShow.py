@@ -6,6 +6,7 @@ import os
 from datetime import date, datetime
 import logging
 import traceback
+import lightgbm as lgb
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -62,6 +63,7 @@ def prepare_features(selected_features, nopack, complexity, region):
 def predict(features):
     predictions = {}
     input_data = pd.DataFrame([features])
+    logger.info(f"Input data for prediction: {input_data}")
     for idx, (model_name, model) in enumerate(models.items()):
         if model is None:
             logger.warning(f"{model_name} model could not be loaded.")
@@ -69,18 +71,20 @@ def predict(features):
         model_key = f"Model-{idx+1}"
         try:
             pred = model.predict(input_data)
+            logger.info(f"{model_name} prediction raw output: {pred}")
             pred = np.round(np.maximum(pred, 0))
             if pred.ndim == 2 and pred.shape[1] == len(output_cols):
                 pred = pred[0]
             elif pred.ndim == 1 and len(pred) == len(output_cols):
                 pass
             else:
-                st.error(f"Unexpected prediction shape from model {model_key}: {pred.shape}")
+                st.error(f"Unexpected prediction shape from {model_key}: {pred.shape}")
+                logger.error(f"Unexpected prediction shape from {model_key}: {pred.shape}")
                 pred = np.zeros(len(output_cols))
             predictions[model_key] = pred
         except Exception as e:
-            st.error(f"Error predicting with model {model_key}.")
-            logger.error(f"Error predicting with model {model_key}: {traceback.format_exc()}")
+            st.error(f"Error predicting with {model_key}: {str(e)}")
+            logger.error(f"Error predicting with {model_key}: {traceback.format_exc()}")
             predictions[model_key] = np.zeros(len(output_cols))
     return predictions
 
@@ -92,6 +96,7 @@ def save_feedback(feedback_text):
         }
         f.write(str(feedback) + "\n")
 
+# Input layout within a form
 with st.form("Input Form"):
     st.subheader("Input Details")
     cols = st.columns(2)
