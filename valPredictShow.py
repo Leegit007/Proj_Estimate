@@ -19,8 +19,8 @@ model_dir = "./model"
 models = {
     'RandomForest': joblib.load(os.path.join(model_dir, "RandomForest.pkl")),
     'LightGBM': joblib.load(os.path.join(model_dir, "LightGBM.pkl")),
-    'MultiTaskLasso': joblib.load(os.path.join(model_dir, "MRM.pkl")),
-    'MLP': joblib.load(os.path.join(model_dir, "MLP.pkl")),
+    #'MultiTaskLasso': joblib.load(os.path.join(model_dir, "MRM.pkl")),
+    #'MLP': joblib.load(os.path.join(model_dir, "MLP.pkl")),
     # 'MTNN': load_model(os.path.join(model_dir, "MTNN_model.h5"), custom_objects=custom_objects)
 }
 
