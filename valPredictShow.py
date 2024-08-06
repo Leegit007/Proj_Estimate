@@ -96,7 +96,6 @@ def save_feedback(feedback_text):
         }
         f.write(str(feedback) + "\n")
 
-# Input layout within a form
 with st.form("Input Form"):
     st.subheader("Input Details")
     cols = st.columns(2)
