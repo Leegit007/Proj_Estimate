@@ -4,16 +4,33 @@ import numpy as np
 import joblib
 import os
 from datetime import date, datetime
+import logging
+import traceback
 
-# Load the pre-trained models
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Starting the application...")
+
+# Load pre-trained models
 model_dir = "./model"
+models = {}
 
-models = {
-    'RandomForest': joblib.load(os.path.join(model_dir, "RandomForest.pkl")),
-    'LightGBM': joblib.load(os.path.join(model_dir, "LightGBM.pkl")),
-    #'MultiTaskLasso': joblib.load(os.path.join(model_dir, "MRM.pkl")),
-    #'MLP': joblib.load(os.path.join(model_dir, "MLP.pkl")),
-}
+# Helper function to load a model file
+def load_model(model_name, file_path):
+    logger.info(f"Loading model {model_name} from {file_path}")
+    try:
+        model = joblib.load(file_path)
+        logger.info(f"{model_name} model loaded successfully.")
+        return model
+    except Exception as e:
+        st.error(f"Error loading {model_name} model.")
+        logger.error(f"Error loading {model_name} model: {traceback.format_exc()}")
+        return None
+
+models['RandomForest'] = load_model('RandomForest', os.path.join(model_dir, "RandomForest.pkl"))
+models['LightGBM'] = load_model('LightGBM', os.path.join(model_dir, "LightGBM.pkl"))
 
 # Feature and output columns definitions
 input_cols = ['ECC', 'S/4HANA', 'BTP', 'RAP', 'CAP', 'DATAREPLICATION', 'BAS', 'MOBILEDEVELOPMENT', 'GENAI', 'NARROWAI']
@@ -52,6 +69,9 @@ def predict(features):
     predictions = {}
     input_data = pd.DataFrame([features])
     for idx, (model_name, model) in enumerate(models.items()):
+        if model is None:
+            logger.warning(f"{model_name} model could not be loaded.")
+            continue
         model_key = f"Model-{idx+1}"
         try:
             pred = model.predict(input_data)
@@ -65,7 +85,8 @@ def predict(features):
                 pred = np.zeros(len(output_cols))
             predictions[model_key] = pred
         except Exception as e:
-            st.error(f"Error with model {model_key}: {e}")
+            st.error(f"Error predicting with model {model_key}.")
+            logger.error(f"Error predicting with model {model_key}: {traceback.format_exc()}")
             predictions[model_key] = np.zeros(len(output_cols))
     return predictions
 
