@@ -3,3 +3,4 @@ pandas
 numpy
 scikit-learn
 joblib
+lightgbm==3.3.2
