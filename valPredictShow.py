@@ -2,16 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-from tensorflow.keras.models import load_model
-from tensorflow.keras.losses import MeanSquaredError
 import os
 from datetime import date, datetime
-
-# Define the custom objects when loading the model
-custom_objects = {
-    'MeanSquaredError': MeanSquaredError,
-    'mse': MeanSquaredError()
-}
 
 # Load the pre-trained models
 model_dir = "./model"
@@ -19,13 +11,12 @@ model_dir = "./model"
 models = {
     'RandomForest': joblib.load(os.path.join(model_dir, "RandomForest.pkl")),
     'LightGBM': joblib.load(os.path.join(model_dir, "LightGBM.pkl")),
-    'MultiTaskLasso': joblib.load(os.path.join(model_dir, "MRM.pkl")),
-    'MLP': joblib.load(os.path.join(model_dir, "MLP.pkl")),
-    # 'MTNN': load_model(os.path.join(model_dir, "MTNN_model.h5"), custom_objects=custom_objects)
+    #'MultiTaskLasso': joblib.load(os.path.join(model_dir, "MRM.pkl")),
+    #'MLP': joblib.load(os.path.join(model_dir, "MLP.pkl")),
 }
 
 # Feature and output columns definitions
-input_cols = ['ECC', 'S/4HANA', 'BTP', 'RAP', 'CAP', 'DATAREPLICATION', 'BAS', 'MOBILEDEVLOPMENT', 'GENAI', 'NARROWAI']
+input_cols = ['ECC', 'S/4HANA', 'BTP', 'RAP', 'CAP', 'DATAREPLICATION', 'BAS', 'MOBILEDEVELOPMENT', 'GENAI', 'NARROWAI']
 output_cols = {
     'UI': 'User Interface',
     'BE': 'Backend',
@@ -112,7 +103,7 @@ with st.form("Input Form"):
     
     # Add a submit button to the form
     submitted = st.form_submit_button("Predict")
-
+    
     if submitted:
         if not selected_features:
             st.error("Please select at least one technology before submitting.")
